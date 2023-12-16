@@ -1,6 +1,10 @@
 # CS6135-VLSI-Physical-Design-Automation
 
 ## Introduction
-This is the course of NTHU's CS6135-VLSI-Physical-Design-Automation in 2020 fall. There are five assignments of the class.
-1. The first assignment is regarding familar with Synopsys IC Compiler tool. I did not upload it because it's not coding assignment.
-2. The HW2 is about implement Fiduccia-Mattheyses (FM) Algorithm for two-way min-cut partitioning problem. 
+This repository contains the coursework for NTHU's CS6135 VLSI Physical Design Automation course from Fall 2020. It includes a series of assignments focusing on different aspects of VLSI design and automation.
+
+## Assignments Overview
+* Assignment 1: Introduction to the Synopsys IC Compiler tool. (Note: This assignment is not included in the repository as it was not a coding assignment.)
+* Assignment 2 (HW2): Implementation of the Fiduccia-Mattheyses (FM) Algorithm for a two-way min-cut partitioning problem.
+* Assignment 3 (HW3): Development of an algorithm for fixed-outline floorplan design with a set of hard blocks.
+* Assignment 4 (HW4): Creation of an algorithm for Global Placement.

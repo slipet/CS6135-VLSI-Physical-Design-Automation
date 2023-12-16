@@ -1,0 +1,936 @@
+#include<stdio.h>
+#include<iostream>
+#include<string>
+#include<vector>
+#include<fstream>
+#include <ios>
+#include <ctime>
+#include<string.h>
+#include<map>
+#include<list>
+using namespace std;
+
+
+
+//
+void encode(vector<pair<int,int>> &cells,vector<int> &hash_list){
+	hash_list.resize(cells.size());
+	vector<pair<int,int>> tmp= cells;
+	cells.clear();
+	cells.resize(tmp.size());
+	
+	
+	
+	for(int index=1;index<tmp.size();index++){
+		if(tmp[index].first!=0){
+			hash_list[index]=1;
+		}
+	}
+	//if(hash_list[index]==6125)
+		//cout<<hash_list[6125]<<endl;
+	
+	for(int index=1,cell=1;index<hash_list.size();index++){
+		if(hash_list[index]>0){
+			cells[cell]=tmp[index];
+			
+			cell++;
+		}
+		
+		//cout<<"["<<index<<"]:"<<hash_list[index]<<endl;
+	}
+	/*
+	int last_index=0;
+	for(int i=1;i<hash_list.size();i++){
+		if(hash_list[i]!=0){
+			last_index++;
+		}
+	}
+	last_index++;
+	hash_list.resize(last_index);	*/
+}
+int hash_func(vector<int> &hash_list,int &origin){
+	int h=1;
+	//if(origin==6197)
+		//cout<<origin<<" ";
+	
+	for(int i=1;i<origin;i++){
+		if(hash_list[i]==1){
+			h++;
+		}
+	}
+	//if(origin==6197)
+	//cout<<h<<" "<<endl;
+	return h;
+}
+int reverse_hash_func(vector<int> &hash_list,int &h){
+	int origin=0;
+	int controll=0;
+	
+
+	//cout<<h<<" ";
+	//if(h==6049)
+		//cout<<h<<" ";	
+	for(int i=1;i<hash_list.size();i++){
+		if(hash_list[i]==1)
+			origin++;
+		if(origin==h){
+			origin=i;
+			break;
+		}
+	}
+		//if(controll==1)
+			//cout<<origin<<endl;
+	//if(h==6049)
+		//cout<<origin<<" "<<endl;
+	//cout<<"hash:"<<hash_list.size()<<endl;
+	//cout<<origin<<" "<<endl;		
+	return origin;
+}
+//read binary file with buffer
+void cell_cin_read_nosync(char *filename,vector<pair<int,int>> &cells,vector<int> &size_list,vector<int> &hash_list){	
+	string cell_name;
+	int cell_size;
+	fstream file;
+	
+	
+	
+	std::ios::sync_with_stdio(false);
+	
+	cells.resize(10000);
+	size_list.resize(10);
+	
+	file.open(filename,ios::in);
+	
+    clock_t start = clock();
+    ifstream fin(filename, std::ios::binary);
+
+    vector<char> buf(static_cast<unsigned int>(fin.seekg(0, std::ios::end).tellg()));
+    fin.seekg(0, std::ios::beg).read(&buf[0], static_cast<std::streamsize>(buf.size()));
+
+    fin.close();
+
+
+    vector<char>::iterator it;
+	string line;
+    for (it = buf.begin(); it != buf.end(); it++)
+    {	
+			line+=*it;		
+    }
+	int current = 0; //最初由 0 的位置開始找
+	int next;
+	vector<string> tmpbuf;
+	int index = 0;
+	
+	while (1)
+	{
+		next = line.find_first_of(" \n", current);
+		
+		if (next != current)
+		{
+			string tmp = line.substr(current, next - current);
+			
+			if (tmp.size() != 0) //忽略空字串
+				if(tmp[0]=='c'){
+					tmp.erase(0,1);
+					index = stoi(tmp,nullptr,10);
+
+					}
+				else{
+					cell_size = stoi(tmp,nullptr,10);
+					if(cells.size()>index){
+						cells.at(index).first=cell_size;
+						cells.at(index).second=0;
+						/*
+						if(size_list.size()-1>cell_size)
+							size_list[cell_size]+=1;
+						else{
+							int size_list_size = size_list.size()-1;
+							while(size_list_size<=cell_size)
+								size_list_size+=20;
+							
+							size_list.resize(size_list_size);
+							size_list[cell_size]+=1;
+						}*/
+					}
+					else{
+						int cells_size=cells.size();
+						while(cells_size<=index)
+							cells_size+=10000;
+
+						cells.resize(cells_size);
+						cells.at(index).second=0;						
+						cells.at(index).first=cell_size;
+						/*
+						if(size_list.size()>cell_size)
+							size_list[cell_size]+=1;
+						else{
+							int size_list_size = size_list.size()-1;
+							while(size_list_size<=cell_size)
+								size_list_size+=20;
+							
+							size_list.resize(size_list_size);
+							size_list[cell_size]+=1;
+						}*/						
+					}
+				}
+		}
+		if (next == string::npos) break;
+		current = next + 1; //下次由 next + 1 的位置開始找起。
+	}
+	encode(cells,hash_list);
+
+	size_list.resize(cells.size());
+	for(int i=1;i<cells.size();i++){
+		
+		size_list[cells[i].first]++;
+	}
+	int last_index=0;
+	for(int i=size_list.size()-1;i>0;i--){
+		if(size_list[i]!=0){
+			last_index=i;
+			break;
+		}
+	}		
+	
+	size_list.resize(last_index+1);
+	
+	
+	//cout<<"[]size]:"<<cells.size()<<endl;
+	last_index=0;
+	
+	for(int i=1;i<cells.size();i++){
+		if(cells[i].first!=0){
+			last_index++;
+		}
+	}
+	last_index++;
+	cells.resize(last_index);
+	
+    clock_t end = clock();
+    cout << "cell i/o time : " << ((double) end - start) / CLOCKS_PER_SEC << "s\n";	
+	//cout<<"[]size]:"<<cells.size()<<endl;*/
+	//cout<<cells;
+}
+void net_cin_read_nosync(char *filename,vector<vector<int>> &nets,vector<pair<int,int>> &cells,vector<int> &hash_list){
+	string cin_net_line;
+	int net_size;
+	fstream file;
+	
+	nets.resize(10000);
+	
+	file.open(filename,ios::in);
+	
+
+    clock_t start = clock();
+    ifstream fin(filename, std::ios::binary);
+
+    vector<char> buf(static_cast<unsigned int>(fin.seekg(0, std::ios::end).tellg()));
+    fin.seekg(0, std::ios::beg).read(&buf[0], static_cast<std::streamsize>(buf.size()));
+
+    fin.close();
+
+    vector<char>::iterator it;
+	string line;
+    for (it = buf.begin(); it != buf.end(); it++)
+    {
+        line+=*it;
+    }
+	int current = 0; //最初由 0 的位置開始找
+	int next;
+	vector<string> tmpbuf;
+	int index = 0;
+	
+	
+	while (1)
+	{
+		
+		next = line.find_first_of("NET \n{}", current);
+		
+		if (next != current)
+		{
+			string tmp = line.substr(current, next - current);
+			
+			if (tmp.size() != 0) //忽略空字串
+				
+				if(tmp[0]=='n'){
+					tmp.erase(0,1);
+					index = stoi(tmp,nullptr,10);
+					}
+				else{
+					int inet=0;
+					tmp.erase(0,1);
+					if (tmp.size() != 0){
+						inet = stoi(tmp,nullptr,10);
+						inet=hash_func(hash_list,inet);
+						if(nets.size()>index){
+							
+							
+							nets[index].push_back(inet);
+							cells[inet].second+=1;
+						}
+						else{
+							int net=nets.size();
+							while(net<=index)
+								net+=10000;
+							nets.resize(net);
+							
+							nets[index].push_back(inet);
+							cells[inet].second+=1;
+						}
+					}
+				}
+		}
+		if (next == string::npos) break;
+		current = next + 1; //下次由 next + 1 的位置開始找起。
+	}
+	//cout<<nets.size()<<endl;
+	
+	int last_index=0;
+	for(int i=1;i<nets.size(); i++){
+		if(nets[i].empty()){
+			last_index = i;
+			break;
+		}
+	}	
+	//cout<<last_index<<endl;
+	nets.resize(last_index);
+	
+    clock_t end = clock();
+    cout << "net i/o time : " << ((double) end - start) / CLOCKS_PER_SEC << "s\n";
+	//cout<<cells;
+}
+
+int sum_of_list(vector<int> &state_of_cell,vector<pair<int,int>> &cells,int A_or_B){
+	int W=0;
+	
+	for(int i=1;i<state_of_cell.size();i++){
+		if(state_of_cell[i]==A_or_B){
+			W+=cells[i].first;
+		}
+	}
+	//cout<<"sum"<<W<<endl;
+	return W;
+}
+
+int size_of_list_islegal(vector<int> &state_of_cell,vector<pair<int,int>> &cells,float R,int W,int maxSize,int A_or_B,int input_list_size=0){
+	
+	float left_constraint = (W*(1.0))*R-maxSize;
+	float right_constraint = (W*(1.0))*R+maxSize;
+	float size_of_list=0;
+	
+	size_of_list=sum_of_list(state_of_cell,cells,A_or_B);
+	size_of_list+=input_list_size;
+	
+	/*
+	if(left_constraint<=size_of_list&&size_of_list<=right_constraint){
+		//cout<<"legal:"<<1<<" ";
+		return 1;
+	}*/
+	
+	//|𝑎𝑎𝑎𝑎𝑎𝑎𝑎𝑎(𝐴𝐴) − 𝑎𝑎𝑎𝑎𝑎𝑎𝑎𝑎(𝐵𝐵)| < 𝑛𝑛10
+	
+	int conditon = size_of_list-(W-size_of_list);
+	if(conditon<0)conditon*=-1;
+	
+	if(conditon<(W/10)){
+		return 1;
+	}
+	
+		//cout<<"legal:"<<0<<" ";
+	return 0;
+}
+
+int init_AB_linked_list(map<int,list<int>> &A_bucket_list,map<int,list<int>> &B_bucket_list,vector<int> &size_list,vector<pair<int,int>> &cells,vector<int>& state_of_cell,float R,int &pin_max){
+	int max_cell_size=0;
+	int sum_cell_size=0;
+	//int pin_max=0;
+	int set_AorB= 1;
+	state_of_cell.resize(cells.size());
+	for(int i=1;i<size_list.size();i++){
+		if(size_list[i]!=0)
+			if(max_cell_size<i)
+				max_cell_size=i;
+	}
+	for(int cell_index=1;cell_index<cells.size();cell_index++){
+		sum_cell_size+=cells[cell_index].first;
+		if(pin_max<cells[cell_index].second)
+			pin_max=cells[cell_index].second;		
+	}
+	for(int i=0;i<=pin_max;i++){
+		A_bucket_list[i];
+		A_bucket_list[i*-1];
+		B_bucket_list[i];
+		B_bucket_list[i*-1];
+	}
+	/*
+	for(int i=size_list.size();i>0;i--){
+		cout<<"size["<<i<<"]:"<<size_list[i]<<endl;
+	}*/
+	
+	for(int i=size_list.size()-1;i>0;i--){
+		
+		for(int size_i_num=size_list[i];size_i_num>0;){
+
+			for(int cell_index=1;cell_index<cells.size();cell_index++){
+				//cout<<cells.at(cell_index).first<<endl;
+				if(cells.at(cell_index).first==i){
+					
+					if(1==set_AorB){
+
+						int index = cells.at(cell_index).second;
+
+						A_bucket_list[index].push_back(cell_index);
+
+						state_of_cell[cell_index]=1;
+
+						size_i_num--;
+						set_AorB*=-1;
+					}
+					else if(-1==set_AorB){
+						int index = cells.at(cell_index).second;
+						B_bucket_list[index].push_back(cell_index);
+						state_of_cell[cell_index]=-1;
+						size_i_num--;
+						set_AorB*=-1;
+					}
+				}
+			}
+		}
+	}
+}
+void init_cells_num_of_net_in_AB(vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<vector<int>> &nets,vector<int> &state_of_cell){
+	cells_num_of_net_in_A.clear();
+	cells_num_of_net_in_A.resize(nets.size());
+	cells_num_of_net_in_B.clear();
+	cells_num_of_net_in_B.resize(nets.size());
+	
+	for(int index=1;index<nets.size();index++){
+		for(int i=0;i<nets[index].size();i++){
+			int cell = nets[index].at(i);
+			if(state_of_cell[cell]==1)
+				cells_num_of_net_in_A[index]+=1;
+			else if(state_of_cell[cell]==-1)
+				cells_num_of_net_in_B[index]+=1;
+		}		
+	}
+	
+}
+void init_cell_in_net(vector<vector<int>> &cell_in_net,vector<vector<int>> &nets,vector<int> &state_of_cell){
+	cell_in_net.resize(state_of_cell.size());
+	
+	//cout<<"["<<state_of_cell.size()<<"]"<<endl;
+	
+	for(int i=1;i<nets.size();i++){
+		for(int j=0;j<nets[i].size();j++){
+			int cell =nets[i].at(j);
+			
+			cell_in_net[cell].push_back(i);
+		}
+	}
+/*	
+	for(int i=1;i<cell_in_net.size();i++){
+		cout<<"["<<i<<"]: ";
+		for(int j=0;j<cell_in_net[i].size();j++){
+			cout<<cell_in_net[i].at(j)<<" ";
+		}
+	}*/
+}
+
+void init_gain(vector<int> &gain_of_cell,vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<vector<int>> &nets,vector<vector<int>> &cell_in_net,vector<int> &state_of_cell){
+	int cell_num = cell_in_net.size()-1;
+	gain_of_cell.clear();
+	gain_of_cell.resize(cell_in_net.size());
+	
+	for(int cell=1;cell<=cell_num;cell++){
+		for(int i=0;i<cell_in_net[cell].size();i++){
+			int net = cell_in_net[cell].at(i);
+			int F=0;
+			int T=0;
+			//cell in A
+			if(state_of_cell[cell]==1){
+				F=cells_num_of_net_in_A[net];
+				T=cells_num_of_net_in_B[net];
+			}
+			//cell in B
+			else if(state_of_cell[cell]==-1){
+				T=cells_num_of_net_in_A[net];
+				F=cells_num_of_net_in_B[net];				
+			}
+			
+			for(int j=0;j<nets[net].size();j++){
+				if(nets[net].at(j)==cell){
+					if(F==1)
+						gain_of_cell[cell]+=1;
+					if(T==0)
+						gain_of_cell[cell]-=1;
+				}
+			}
+		}
+	}
+	
+	//for(int i=1;i<gain_of_cell.size();i++){
+		//cout<<"["<<i<<"]:"<<gain_of_cell[i]<<endl;
+	//}
+}
+
+void init_locked_cell(vector<int> &locked_cell,vector<int> &state_of_cell){
+	locked_cell.clear();
+	locked_cell.resize(state_of_cell.size());
+	
+}
+
+
+void reallocate_AB_list(map<int,list<int>> &A_bucket_list,map<int,list<int>> &B_bucket_list,vector<int> &state_of_cell,vector<int> &gain_of_cell,vector<vector<int>> &cell_in_net,int &pin_max){
+	map<int,list<int>> tmpA,tmpB;
+	tmpA=A_bucket_list;
+	tmpB=B_bucket_list;
+	A_bucket_list.clear();
+	B_bucket_list.clear();
+	
+
+	A_bucket_list[0];
+	B_bucket_list[0];
+	for(int i=1;i<=pin_max;i++){
+		A_bucket_list[i];
+		A_bucket_list[i*-1];
+		B_bucket_list[i];
+		B_bucket_list[i*-1];		
+	}
+	
+	for(int cell=1;cell<gain_of_cell.size();cell++){
+		if(state_of_cell[cell]==1){
+			A_bucket_list[gain_of_cell[cell]].push_back(cell);
+		}
+		else if(state_of_cell[cell]==-1){
+			B_bucket_list[gain_of_cell[cell]].push_back(cell);
+		}
+	}
+	
+	//vector<char>::iterator it;
+	/*
+	vector<int>::iterator j;
+	for(int i=pin_max;i>=pin_max*-1;i--){
+		cout<<"{"<<i<<"}: ";
+		for(j=A_bucket_list[i].begin();j!=A_bucket_list[i].end();j++){
+			cout<<"["<<*j<<"] ";
+		}
+		cout<<endl;
+	}*/
+	
+}
+
+void update_gain(vector<vector<int>> &nets,vector<int> &gain_of_cell,vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<int> &locked_cell,vector<vector<int>> &cell_in_net,vector<int> &state_of_cell,int cell){
+
+	locked_cell[cell]=1;	
+	int controll=0;
+	
+	
+	//cout<<"move:"<<cell<<endl;
+	for(int index=0;index<cell_in_net[cell].size();index++){
+		//before move
+		//cell in A
+		int F;
+		int T;
+		
+		if(state_of_cell[cell]==1){
+			F=cells_num_of_net_in_A[cell_in_net[cell].at(index)];
+			T=cells_num_of_net_in_B[cell_in_net[cell].at(index)];
+		}//cell in B
+		else if(state_of_cell[cell]==-1){
+			F=cells_num_of_net_in_B[cell_in_net[cell].at(index)];
+			T=cells_num_of_net_in_A[cell_in_net[cell].at(index)];			
+		}
+		
+		int cell_pos_in_net;
+		for(int i=0;i<nets[index].size();i++){
+			if(nets[index].at(i)==cell){
+				cell_pos_in_net=i;
+				break;
+			}
+		}
+		/* check critical nets before the move */
+		if(T==0){
+			for(int i=0;i<nets[index].size();i++){
+				if(locked_cell[nets[index].at(i)]!=1){
+					gain_of_cell[nets[index].at(i)]++;
+				}
+			}
+		}
+		else if(T==1){
+			for(int i=0;i<nets[index].size();i++){
+				if(locked_cell[nets[index].at(i)]!=1){
+					//decrease gain of cell in to block 
+					if(state_of_cell[nets[index].at(i)]==(state_of_cell[cell]*-1))
+						gain_of_cell[nets[index].at(i)]--;
+				}
+			}			
+		}
+		//move
+		F--;T++;
+		//move cell
+		//change a b list
+		if(state_of_cell[cell]==1){
+			cells_num_of_net_in_A[cell_in_net[cell].at(index)]--;
+			cells_num_of_net_in_B[cell_in_net[cell].at(index)]++;
+		}
+		else if(state_of_cell[cell]==-1){
+			cells_num_of_net_in_A[cell_in_net[cell].at(index)]++;
+			cells_num_of_net_in_B[cell_in_net[cell].at(index)]--;			
+		}
+		if(controll==0){
+			state_of_cell[cell]*=-1;
+			controll=1;
+		}
+		
+		//check critical nets after the move
+		if(F==0){
+			for(int i=0;i<nets[index].size();i++){
+				if(locked_cell[nets[index].at(i)]!=1){
+					gain_of_cell[nets[index].at(i)]--;
+				}
+			}
+		}
+		else if(F==1){
+			for(int i=0;i<nets[index].size();i++){
+				if(locked_cell[nets[index].at(i)]!=1){
+					if(state_of_cell[nets[index].at(i)]==(state_of_cell[cell])*-1)					
+						gain_of_cell[nets[index].at(i)]++;
+				}
+			}			
+		}		
+	}
+
+	
+}
+int  compute_cut_size(vector<vector<int>> &nets,vector<int> &state_of_cell){
+
+	int cut_size=0;
+	for(int i=1;i<nets.size();i++){
+		int state=state_of_cell[nets[i].at(0)];
+		
+		for(int j=1;j<nets[i].size();j++){
+			
+			if(state_of_cell[nets[i].at(j)]==state*-1){
+				cut_size++;
+				break;
+			}
+		}
+	}
+	/*
+	cout<<"A: ";
+	for(int i=1;i<state_of_cell.size();i++){
+		if(state_of_cell[i]==1)
+			cout<<"["<<i<<"] ";
+	}
+	cout<<"B: ";
+	for(int i=1;i<state_of_cell.size();i++){
+		if(state_of_cell[i]==-1)
+			cout<<"["<<i<<"] ";
+	}
+	cout<<endl;*/
+	return cut_size;
+}
+int move_celli(vector<vector<int>> &nets,map<int,list<int>> A_bucket_list,map<int,list<int>> B_bucket_list,vector<pair<int,int>> &cells,vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<int> &gain_of_cell,vector<int> &locked_cell ,vector<int> &state_of_cell,vector<vector<int>> &cell_in_net,vector<int> &size_list,vector<int>&move,vector<int > &record_cell_move_times,int pin_max,float R=0.5){
+	int partial_sum=0;
+	int W=sum_of_list(state_of_cell,cells,1)+sum_of_list(state_of_cell,cells,-1);
+	int max_cell_size=0;
+	int cut_size=nets.size();
+
+	vector<int> save_state_of_cell=state_of_cell;
+
+	move.clear();
+	move.resize(cells.size());
+	
+	for(int i=1;i<size_list.size();i++){
+		if(size_list[i]!=0)
+			if(max_cell_size<i)
+				max_cell_size=i;
+	}
+	
+	//for(int i=0;i<gain_of_cell.size();i++)
+		//cout<<"["<<i<<"]:"<<gain_of_cell[i]<<endl;
+	////////////////////////////////
+	
+	
+	int count=0;
+	int controll;
+	int max_cut_size_step=0;
+	do{
+		 
+		for(int max=pin_max;max>=pin_max*-1;max--){
+			//cout<<"max   :"<<max<<endl;
+			int find=0;
+			int cell =0;
+			//cout<<"max:"<<max<<" "<<A_bucket_list[max].size()<<endl;
+			if(A_bucket_list[max].size()!=0){
+				cell = *(A_bucket_list[max].begin());
+				
+				if(locked_cell[cell]!=1){
+					
+					if(size_of_list_islegal(state_of_cell,cells,R,W,max_cell_size,-1,cells[cell].first)==1||size_of_list_islegal(state_of_cell,cells,R,W,max_cell_size,1,cells[cell].first*-1)==1){
+
+						partial_sum+=gain_of_cell[cell];
+
+						update_gain(nets,gain_of_cell,cells_num_of_net_in_A,cells_num_of_net_in_B,locked_cell,cell_in_net,state_of_cell,cell);
+							//cout<<"move:"<<i<<" "<<endl;
+							//update gain
+						find=1;
+						//cout<<"A:"<<cell<<endl;
+						//remove A_bucket_list
+						//cout<<"A"<<A_bucket_list[max].size()<<endl;
+						
+						A_bucket_list[max].erase(A_bucket_list[max].begin());
+						//cout<<"A"<<A_bucket_list[max].size()<<endl;
+						
+						}			
+				}
+			}
+			else if(B_bucket_list[max].size()!=0){
+				cell = *(B_bucket_list[max].begin());
+				
+				if(locked_cell[cell]!=1){
+					if(size_of_list_islegal(state_of_cell,cells,R,W,max_cell_size,1,cells[cell].first)==1||size_of_list_islegal(state_of_cell,cells,R,W,max_cell_size,-1,cells[cell].first*-1)==1){					
+						partial_sum+=gain_of_cell[cell];
+
+						update_gain(nets,gain_of_cell,cells_num_of_net_in_A,cells_num_of_net_in_B,locked_cell,cell_in_net,state_of_cell,cell);
+							//cout<<"move:"<<i<<" "<<endl;
+							//update gain
+						find=1;
+						//cout<<"B:"<<cell<<endl;
+						//remove A_bucket_list
+						//cout<<"B"<<B_bucket_list[max].size()<<endl;
+						B_bucket_list[max].erase(B_bucket_list[max].begin());
+						//cout<<"B"<<B_bucket_list[max].size()<<endl;
+					
+					}
+				}		
+			}
+			if(find==1){				
+				move[count]=cell;
+				//cout<<"cell:"<<cell<<" "<<locked_cell[cell]<<endl;
+				//cout<<"cell "<<count<<" "<<move[count]<<" ";
+				count++;
+				
+				break;
+			}
+			//cout<<"max:"<<max<<" "<<A_bucket_list[max].size()<<" "<<A_bucket_list[max].size()<<endl;
+			controll=max;
+			
+			
+		}
+		if(cut_size>compute_cut_size(nets,state_of_cell)){
+			cut_size=compute_cut_size(nets,state_of_cell);
+			max_cut_size_step=count;
+			max_cut_size_step--;
+		}
+		//cout<<"max:"<<max<<" "<<A_bucket_list[max].size()<<" "<<A_bucket_list[max].size()<<endl;
+		//cout<<"max_cut_size_step:"<<max_cut_size_step<<endl;
+		
+		if(controll==(pin_max*-1)&&B_bucket_list[controll].size()==0&&A_bucket_list[controll].size()==0)
+			break;
+		
+		//cout<<"partial_sum:"<<partial_sum<<endl;
+		/*int sum=0;
+		for(int i=1;i<locked_cell.size();i++)
+			sum+=locked_cell[i];
+		cout<<"sum:"<<sum<<endl;*/
+	//count++;cout<<count;
+	//cout<<"partial_sum:"<<partial_sum<<endl;
+	//int locked=0;
+	//for(int i=1;i<locked_cell.size();i++)
+		//cout<<locked_cell[i]<<" ";
+	//cout<<endl;
+//if(locked_cell[i])
+//		locked++;
+	//cout<<"locked:"<<locked<<endl;	
+	}while(partial_sum>-1);
+	
+	for(int i=0;i<=max_cut_size_step;i++){
+		record_cell_move_times[move[i]];
+		save_state_of_cell[move[i]]*=-1;
+	}
+	state_of_cell=save_state_of_cell;
+	return 0;
+}
+void move_times_to_locked_cell(vector<int>&locked_cell,vector<int > &record_cell_move_times){
+	
+	int count=0;
+	for(int i=1;i<record_cell_move_times.size();i++){
+		if(record_cell_move_times[i]>1){
+			locked_cell[i]=1;
+			count++;
+		}
+	}
+	if(count==record_cell_move_times.size()-1){
+		record_cell_move_times.clear();
+		record_cell_move_times.resize(locked_cell.size());
+	}
+}
+
+void merge(vector<pair<int,int>> &cells,vector<vector<int>> &nets,map<int,list<int>> &A_bucket_list,map<int,list<int>> &B_bucket_list,vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<int> &gain_of_cell,vector<int> &locked_cell,vector<int> &state_of_cell,vector<vector<int>> &cell_in_net,vector<int> &size_list,vector<int> &move,vector<int > &record_cell_move_times,int pin_max){
+	
+	
+	init_locked_cell(locked_cell,state_of_cell);
+	init_cells_num_of_net_in_AB(cells_num_of_net_in_A,cells_num_of_net_in_B,nets,state_of_cell);
+	init_gain(gain_of_cell,cells_num_of_net_in_A,cells_num_of_net_in_B,nets,cell_in_net,state_of_cell);
+
+	reallocate_AB_list(A_bucket_list,B_bucket_list,state_of_cell,gain_of_cell,cell_in_net,pin_max);
+	
+	//cout<<"A size:"<<sum_of_list(state_of_cell,cells,1)<<endl;
+	//cout<<"B size:"<<sum_of_list(state_of_cell,cells,1)<<endl;
+	
+	move_celli(nets,A_bucket_list,B_bucket_list,cells,cells_num_of_net_in_A,cells_num_of_net_in_B , gain_of_cell , locked_cell , state_of_cell , cell_in_net,size_list,move,record_cell_move_times,pin_max);	
+	
+	
+	cout<<"cut_size:"<<compute_cut_size(nets,state_of_cell)<<endl;
+}
+
+void merge2(vector<pair<int,int>> &cells,vector<vector<int>> &nets,map<int,list<int>> &A_bucket_list,map<int,list<int>> &B_bucket_list,vector<int> &cells_num_of_net_in_A,vector<int> &cells_num_of_net_in_B,vector<int> &gain_of_cell,vector<int> &locked_cell,vector<int> &state_of_cell,vector<vector<int>> &cell_in_net,vector<int> &size_list,vector<int> &move,vector<int > &record_cell_move_times,int pin_max){
+	
+	
+	init_locked_cell(locked_cell,state_of_cell);
+	init_cells_num_of_net_in_AB(cells_num_of_net_in_A,cells_num_of_net_in_B,nets,state_of_cell);
+	init_gain(gain_of_cell,cells_num_of_net_in_A,cells_num_of_net_in_B,nets,cell_in_net,state_of_cell);
+
+	reallocate_AB_list(A_bucket_list,B_bucket_list,state_of_cell,gain_of_cell,cell_in_net,pin_max);
+	move_times_to_locked_cell(locked_cell,record_cell_move_times);
+	move_celli(nets,A_bucket_list,B_bucket_list,cells,cells_num_of_net_in_A,cells_num_of_net_in_B , gain_of_cell , locked_cell , state_of_cell , cell_in_net,size_list,move,record_cell_move_times,pin_max);	
+	
+	
+	//cout<<"cut_size:"<<compute_cut_size(nets,state_of_cell)<<endl;
+}
+
+void output(vector<pair<int,int>> &cells,vector<vector<int>> &nets,vector<int> &hash_list,vector<int> &state_of_cell,char *filename){
+	FILE *fptr; 
+	fptr = fopen(filename, "w");
+	fprintf(fptr,"cut_size %d\n",compute_cut_size(nets,state_of_cell));
+	
+	int A=0,B=0;
+	for(int i=1;i<state_of_cell.size();i++){
+		if(state_of_cell[i]==1)
+			A++;
+		if(state_of_cell[i]==-1)
+			B++;
+	}
+	fprintf(fptr,"A %d\n",A);	
+	compute_cut_size(nets,state_of_cell);
+
+//reverse_hash_func(hash_list,h)
+	
+	for(int i=1;i<state_of_cell.size();i++){
+		//cout<<i<<" "<<hash_list[i]<<endl;
+
+		if(state_of_cell[i]==1){
+				fprintf(fptr,"c%d\n",reverse_hash_func(hash_list,i));
+
+			state_of_cell[i]=0;
+		}
+	}
+	fprintf(fptr,"B %d\n",B);	
+
+	for(int i=1;i<state_of_cell.size();i++){
+		//cout<<i<<" "<<hash_list[i]<<endl;
+
+			
+		if(state_of_cell[i]==-1){
+			
+				fprintf(fptr,"c%d\n",reverse_hash_func(hash_list,i));
+
+			state_of_cell[i]=0;
+		}
+	}	
+	fclose(fptr);
+}
+
+int main(int argc,char **argv){
+	//cells: <size,pins>
+	vector<pair<int,int>> cells;
+	vector<vector<int>> nets;
+	//
+	vector<int> size_list;
+	//1 in A ,-1 in B
+	vector<int> state_of_cell;
+	
+	//cell in net
+	vector<vector<int>> cell_in_net;
+	
+	//A to B; every net have F and T
+	//vector<vector<int>> AB_From_block,AB_To_block;
+	vector<int> cells_num_of_net_in_A,cells_num_of_net_in_B;
+	//B to A
+	//vector<int,vector<int>> BA_From_block,BA_To_block;
+	
+	//gain
+	vector<int> gain_of_cell;
+	
+	//
+	vector<int>locked_cell;
+	
+	vector<int> hash_list;
+	
+	map<int,list<int>> A_bucket_list,B_bucket_list;
+	
+	//store move of cell;
+	vector<int> move;
+	
+	vector<int > record_cell_move_times;
+	
+	int pin_max=0;
+	
+	float R=0.5;
+	//cout<<"stop"<<endl;
+	cell_cin_read_nosync(argv[1],cells,size_list,hash_list);
+	cout<<"cells size:"<<cells.size()<<"\n";
+
+	net_cin_read_nosync(argv[2],nets,cells,hash_list);
+	cout<<"nets size:"<<nets.size()<<"\n";	
+	
+	move.resize(cells.size());
+	record_cell_move_times.resize(cells.size());
+	
+	//cout<<"stop"<<endl;
+	
+	clock_t start = clock();	
+	init_AB_linked_list(A_bucket_list,B_bucket_list,size_list,cells, state_of_cell, R,pin_max);
+	init_cell_in_net(cell_in_net,nets,state_of_cell);
+
+	init_cells_num_of_net_in_AB(cells_num_of_net_in_A,cells_num_of_net_in_B,nets,state_of_cell);
+	
+	init_gain(gain_of_cell,cells_num_of_net_in_A,cells_num_of_net_in_B,nets,cell_in_net,state_of_cell);
+	init_locked_cell(locked_cell,state_of_cell);
+	reallocate_AB_list(A_bucket_list,B_bucket_list,state_of_cell,gain_of_cell,cell_in_net,pin_max);
+	
+	
+	//cout<<"cut_size:"<<endl;
+	
+	//move_celli(nets,A_bucket_list,B_bucket_list,cells,cells_num_of_net_in_A,cells_num_of_net_in_B , gain_of_cell , locked_cell , state_of_cell , cell_in_net,size_list,move,record_cell_move_times,pin_max);
+
+	cout<<"cut_size brfore FM:"<<compute_cut_size(nets,state_of_cell)<<endl;
+
+	cout<<endl;
+	cout<<endl;
+	cout<<endl;		
+	merge(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,move,record_cell_move_times,pin_max);
+
+
+	//merge2(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,move,record_cell_move_times,pin_max);
+	//merge(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,move,record_cell_move_times,pin_max);
+	//merge(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,move,record_cell_move_times,pin_max);	
+	/*
+	for(int i=1;i<state_of_cell.size();i++){
+		cout<<i<<" "<<state_of_cell[i]<<endl;
+	}*/	
+	for(int i=0;i<2;i++){
+		cout<<"cut_size:"<<compute_cut_size(nets,state_of_cell)<<endl;
+		//merge2(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,record_cell_move_times,move,pin_max);
+		//merge(cells,nets,A_bucket_list,B_bucket_list,cells_num_of_net_in_A,cells_num_of_net_in_B,gain_of_cell,locked_cell,state_of_cell,cell_in_net,size_list,record_cell_move_times,move,pin_max);		
+	}
+
+	cout<<"cut_siz after FM:"<<compute_cut_size(nets,state_of_cell)<<endl;
+	
+	output(cells,nets,hash_list,state_of_cell,argv[3]);
+
+    clock_t end = clock();
+    cout << "FM alg time : " << ((double) end - start) / CLOCKS_PER_SEC << "s\n";
+	return 0;
+}

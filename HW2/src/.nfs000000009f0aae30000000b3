@@ -1,0 +1,57 @@
+#include"linked_list.h"
+
+int main(){
+	
+	Doubly_Linked_List alist;
+	alist.add_end(123);
+	alist.add_end(12);
+	alist.add_end(1);
+	alist.forward_traverse();
+	
+	node *end2=alist.getend();
+	
+	cout<<"*end:"<<(*end2).data<<endl;
+	end2=(end2->prev);
+	alist.delete_node(end2);
+	end2=alist.getend();
+	
+	//alist.~Doubly_Linked_List();
+	
+	alist.forward_traverse();
+
+	alist.add_end(3);
+	alist.add_end(4);
+	alist.add_end(5);
+	alist.add_end(6);
+	cout<<"all:"<<endl;
+	alist.forward_traverse();
+	end2=alist.getend();
+	cout<<"*end:"<<(*end2).data<<endl;	
+	alist.clear();
+	cout<<"end:"<<(alist.getend()==NULL)<<endl;
+	
+	
+	map<int,Doubly_Linked_List> A_bucket_list;
+	
+	A_bucket_list[1].add_end(3);
+	A_bucket_list[1].add_end(4);
+	A_bucket_list[1].add_end(5);
+	A_bucket_list[1].add_end(6);
+	
+	A_bucket_list[1].forward_traverse();
+	
+	end2=A_bucket_list[1].getend();
+	end2=end2->prev;
+	cout<<"*end:"<<(*end2).data<<endl;
+	A_bucket_list[1].delete_node(end2);
+	A_bucket_list[1].forward_traverse();
+	A_bucket_list[1].clear();
+
+	A_bucket_list[1].add_end(3);
+	A_bucket_list[1].forward_traverse();
+	end2=A_bucket_list[1].getend();
+	A_bucket_list[1].delete_node(end2);
+	cout<<"empty:"<<A_bucket_list[1].empty()<<endl;
+	
+	return 0;
+}
