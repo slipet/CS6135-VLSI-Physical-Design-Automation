@@ -8,3 +8,4 @@ This repository contains the coursework for NTHU's CS6135 VLSI Physical Design A
 * Assignment 2 (HW2): Implementation of the Fiduccia-Mattheyses (FM) Algorithm for a two-way min-cut partitioning problem.
 * Assignment 3 (HW3): Development of an algorithm for fixed-outline floorplan design with a set of hard blocks.
 * Assignment 4 (HW4): Creation of an algorithm for Global Placement.
+* Assignment 5 (HW5): Implement an existing algorithm or develop your own algorithm to solve the global routing problem with a set of 2-pin nets.
