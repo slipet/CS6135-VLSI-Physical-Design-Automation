@@ -6,9 +6,7 @@
 - **Example**: `$ ../bin/hw3 ../testcase/n100.hardblocks ../testcase/n100.nets ../testcase/n100.pl ../output/n100.floorplan 0.1`
 
 ## Performance Metrics
-- Wirelength and runtime for test cases with dead space ratios 0.1 and 0.15.
-- Includes I/O time, initial floorplanning time, and computation parts.
-- Example: `Case1: IO time 0s, B*tree init 1.08s, Simulated annealing time 1037.48s, Runtime 1038.48s, Wire length 293900`
+In my approach, I did not specifically account for the dead space ratio; instead, I focused on optimizing the layout to fit within the fixed outline constraints. Initially, I conducted experiments using a dead space ratio of 0.1, leading to identical results for both 0.1 and 0.15 ratios. The variance in runtime for Case 1 and others stems from the use of distinct parameters in each scenario, influencing the time it takes to conform to the fixed outline. Consequently, there isn't a direct correlation between the execution time and the number of modules."
 
 ## Dead Space Ratio Analysis
 - Smallest dead space ratio for legal results in 20 minutes.
