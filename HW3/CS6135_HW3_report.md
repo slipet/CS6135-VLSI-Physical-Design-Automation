@@ -28,7 +28,7 @@ In my approach, I did not specifically account for the dead space ratio; instead
 - References:
   - B* tree method: Chang, Chang, Wu, and Wu, “B*-Tree: A New Representation for Non-Slicing Floorplans,” DAC’00.
   - Fixed outline cost function: Chen and Chang, “Modern Floorplanning Based on Fast Simulated Annealing,” ISPD’05 & TCAD’06.
-![Alt text](image-1.png)
+![Alt text](pic/image-1.png)
 
 ## Enhancements and Comparison
 - The report discusses the challenges with the B* tree method, noting that it does not guarantee a fit within the fixed outline and often results in local minimum traps.
