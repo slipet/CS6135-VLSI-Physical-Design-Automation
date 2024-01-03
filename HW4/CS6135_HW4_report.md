@@ -4,17 +4,17 @@
 - Details about wirelength and runtime for various test cases are provided.
 
 - Testcase1:
-![Alt text](image-1.png)
+![Alt text](pic/image-1.png)
 
 - Testcase2:
-![Alt text](image-2.png)
+![Alt text](pic/image-2.png)
 
 - Testcase3:
-![Alt text](image-3.png)
+![Alt text](pic/image-3.png)
 
 ## Algorithm Details
 - The algorithm involves initially placing each cell randomly, followed by optimization using LSE for wirelength, and finally dispersing cells with LSE and bin density constraints.
-![Alt text](image.png)
+![Alt text](pic/image.png)
 ## Enhancements to Speed and Solution Quality
 - The strategy involved using LSE to optimize wirelength in initial iterations, then applying bin density constraints for cell dispersion.
 
