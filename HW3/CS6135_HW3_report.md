@@ -17,20 +17,27 @@ In my approach, I did not specifically account for the dead space ratio; instead
 | Case 3 | 0.1              | 0.02s    | 3.02s            | 1003.75s                 | 1006s         | 724529      |
 | Case 3 | 0.15             | 0.02s    | 3.02s            | 1003.75s                 | 1006s         | 724529      |
 ## Dead Space Ratio Analysis
-- Smallest dead space ratio for legal results in 20 minutes.
-- Example: `Case1: 0.0983`
+- The objective was to determine the smallest dead space ratio that allows the program to produce a legal result within 20 minutes.
+- Results for each case:
+  - **Case 1**: 0.0983
+  - **Case 2**: 0.097
+  - **Case 3**: 0.0995
 
 ## Algorithm Details
-- Utilized B* tree and fixed-outline cost function methodologies.
-- Flow chart and pseudo-code used to elaborate the algorithm.
+- The project utilized the B* tree method and a fixed outline cost function for floorplanning. These methods were mentioned in the course lectures.
+- References:
+  - B* tree method: Chang, Chang, Wu, and Wu, “B*-Tree: A New Representation for Non-Slicing Floorplans,” DAC’00.
+  - Fixed outline cost function: Chen and Chang, “Modern Floorplanning Based on Fast Simulated Annealing,” ISPD’05 & TCAD’06.
+![Alt text](image-1.png)
 
 ## Enhancements and Comparison
-- Tricks for speeding up the program or enhancing solution quality.
-- Comparison with top students' results from the previous year.
+- The report discusses the challenges with the B* tree method, noting that it does not guarantee a fit within the fixed outline and often results in local minimum traps.
+- Significant time was spent testing parameters to achieve the desired goals.
+- A random approach was used to find seed values that would allow test cases to pass. However, this method was acknowledged as not being a general solution.
 
 ## Learning and Challenges
-- Insights and problems encountered during the assignment.
-- Focus on algorithm design and experimental parameter testing.
-
-(Note: This is a summarized version, focusing on key elements of the report)
+- The author's method required more than 10 minutes, and the solution quality significantly differed from the top 5 students.
+- To improve speed and quality, techniques like fast simulated annealing and multi-level B*tree were considered.
+    - Fast simulated annealing could avoid the pitfalls of regular simulated annealing, such as getting trapped in local minimums, and might lead to better solutions more quickly.
+    - Multi-level B*tree, akin to dynamic programming, could segment the problem, first finding decent solutions, then refining them with fast simulated annealing.
 
